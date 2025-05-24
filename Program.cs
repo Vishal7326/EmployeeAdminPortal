@@ -31,3 +31,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+//Migrations is a way for the application to create some files in C# classes in the program  and execute this files and then convert them to sql to create  a new database and new table.
