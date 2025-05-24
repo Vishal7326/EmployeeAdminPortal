@@ -1,5 +1,7 @@
 ﻿using Azure;
 using EmployeeAdminPortal.Data;
+using EmployeeAdminPortal.Models;
+using EmployeeAdminPortal.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +24,7 @@ namespace EmployeeAdminPortal.Controllers
 
         public EmployeesController(ApplicationDbContext dbContext) // Using ApplicationDbCOntext from the Data
         {
-            
+            this.dbContext = dbContext;
         }
 
         //Reading all the Employees from the Employee Table.
@@ -41,6 +43,32 @@ namespace EmployeeAdminPortal.Controllers
             var allEmployees = dbContext.Employees.ToList();
 
             return Ok(allEmployees);
+        }
+
+        [HttpPost] // This Method is used to add the properties to the table.
+        //We Define the action method.
+
+        public IActionResult AddEmployee(AddEmployeeDto addEmployeeDto) 
+        {
+            //Defining Method Structure.
+
+            // To add an employee we need the details of the employee. which is in employee class. 
+
+            //For this we use Dto data transfer objects - which transfer data from one operation to another.
+
+            //The DBContext Class that we use to add this employee only accept the entities over here.
+
+            var employeeEntity = new Employee()
+            {
+                Name = addEmployeeDto.Name,
+                Email = addEmployeeDto.Email,
+                Phone = addEmployeeDto.Phone,
+                Salary = addEmployeeDto.Salary
+            };
+
+            dbContext.Employees.Add()
+
+
         }
     }
 }
