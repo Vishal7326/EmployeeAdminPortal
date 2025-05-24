@@ -1,3 +1,6 @@
+using EmployeeAdminPortal.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +9,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Injecting the DbContext Class that we created to establish the connection with the databse and we an use it inside the controller or anyother class inside our application.
+//In AddDbContext we are passing the type of the DbContext Class that we have created inside the data folder in this case it is ApplicationDbContext.
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
