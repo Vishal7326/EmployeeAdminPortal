@@ -1,5 +1,9 @@
 using EmployeeAdminPortal.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +19,26 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Adding JWT Authentiction 
+//Adding JWT Authentiction.
+
+builder.Services.AddAuthentication(options => // This Method add authentication to the web application this method is responsible for adding jwt authentication.
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // authorizes the user based on the based on the tokens of the each user.
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; //So this 2 methods does the work of authorization at the backend.
+})
+.AddJwtBearer(options => //This method takes some parameter to authenticate the issuer , Audience , Lifetime.
+{
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
 
 var app = builder.Build();
 
