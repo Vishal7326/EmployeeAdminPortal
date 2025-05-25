@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using static System.Net.WebRequestMethods;
 
+
 namespace EmployeeAdminPortal.Controllers
 {
     //It Goes to the localhost port number that it is running on.
     //localhost:xxxx/api/controller.
     //In this case it would be 
-    //localhost:xxxx/api/employees
+    //localhost:xxxx/api/employees.
+
     [Route("api/[controller]")]
     [ApiController]
     public class EmployeesController : ControllerBase
@@ -28,6 +30,7 @@ namespace EmployeeAdminPortal.Controllers
         }
 
         //Reading all the Employees from the Employee Table.
+
         [HttpGet]
 
         //An Action Method is a public method in an ASP.NET Core Controller
@@ -45,20 +48,37 @@ namespace EmployeeAdminPortal.Controllers
             return Ok(allEmployees);
         }
 
+        // Getting onlyone Employee by id.
+        [HttpGet]
+        [Route("{id:guid}")] // Im Accepting the identifier in the route itself.
+        public IActionResult GetEmployeesById(Guid id) //Since we need to search for id we need id from the database hence we will accept the identifier in the route.
+        {
+            var employee = dbContext.Employees.Find(id);
+
+            if (employee is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(employee);
+        } 
+        
+
         [HttpPost] // This Method is used to add the properties to the table.
-        //We Define the action method.
+
+        // We Define the action method.
 
         public IActionResult AddEmployee(AddEmployeeDto addEmployeeDto) 
         {
-            //Defining Method Structure.
+            // Defining Method Structure.
 
             // To add an employee we need the details of the employee. which is in employee class. 
 
-            //For this we use Dto data transfer objects - which transfer data from one operation to another.
+            // For this we use Dto data transfer objects - which transfer data from one operation to another.
 
             //The DBContext Class that we use to add this employee only accept the entities over here.
 
-            var employeeEntity = new Employee()
+            var employeeEntity = new Employee() // Creating an entity over here 
             {
                 Name = addEmployeeDto.Name,
                 Email = addEmployeeDto.Email,
@@ -66,9 +86,60 @@ namespace EmployeeAdminPortal.Controllers
                 Salary = addEmployeeDto.Salary
             };
 
-            dbContext.Employees.Add()
+            dbContext.Employees.Add(employeeEntity); // What we have is EmployeeDto but in add function it takes only entity 
+                                                     // So we need to convert dto into entity
 
+            dbContext.SaveChanges(); // The actions that you want to make will be changed and saved.
 
+            return Ok(employeeEntity);
+        }
+
+        [HttpPut]
+        [Route("{id:guid}")]
+        public IActionResult UpdateEmployee(Guid id,UpdateEmployeeDto updateEmployeeDto) // This Method Also Need Information of the method that you are Updating.
+            //The Second Parameter that we need is an object that contains the element that we need to update.
+        {
+            var employee = dbContext.Employees.Find(id);
+
+            if (employee is  null)
+            {
+                return NotFound();
+            }
+
+            employee.Name = updateEmployeeDto.Name;
+
+            employee.Email = updateEmployeeDto.Email;
+
+            employee.Phone = updateEmployeeDto.Phone;
+
+            employee.Salary = updateEmployeeDto.Salary;
+
+            dbContext.SaveChanges(); // If You Forget to do this you will not see any changes in the db.
+
+            return Ok(employee);
+
+        }
+        //Creating a Http requet to delete the employee from the db 
+
+        [HttpDelete]
+
+        [Route("{id:guid}")]
+
+        public IActionResult DeleteEmployee(Guid id)
+        {
+            var deletedemployee = dbContext.Employees.Find(id);
+
+            if (deletedemployee is null) {
+
+                return NotFound();
+
+            }
+
+            dbContext.Employees.Remove(deletedemployee);
+
+            dbContext.SaveChanges();
+
+            return Ok(deletedemployee);
         }
     }
 }
